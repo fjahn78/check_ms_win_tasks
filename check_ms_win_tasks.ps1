@@ -8,9 +8,9 @@
 # On OutsideIT: https://outsideit.net/check-ms-win-tasks
 # Copyright:
 #   This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published
-#   by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. This program is distributed 
-#   in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-#   PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of the GNU General Public 
+#   by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. This program is distributed
+#   in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+#   PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of the GNU General Public
 #   License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #Requires -Version 2.0
@@ -43,7 +43,7 @@ $Struct = New-Object -TypeName PSObject -Property @{
   OutputString = [string]'Unknown: Error processing, no data returned.'
   WarningTreshold =  [int]0
   CriticalTreshold = [int]0
-  LastExec = [bool]$false                    
+  LastExec = [bool]$false
 }
 
 #region Functions
@@ -75,22 +75,22 @@ Function Write-Log {
     }
     Try {
       $LocalHostname = ([Net.Dns]::GetHostByName((& "$env:windir\system32\hostname.exe")).HostName).tolower()
-      $JsonObject = (New-Object -TypeName PSObject | 
-        Add-Member -PassThru -NotePropertyName NoteProperty -NotePropertyValue logsource -InputObject $LocalHostname | 
-        Add-Member -PassThru -NotePropertyName NoteProperty -NotePropertyValue hostname -InputObject $LocalHostname | 
-        Add-Member -PassThru -NotePropertyName NoteProperty -NotePropertyValue scriptname -InputObject $LocalScriptName | 
-        Add-Member -PassThru -NotePropertyName NoteProperty -NotePropertyValue logtime -InputObject $Now | 
-        Add-Member -PassThru -NotePropertyName NoteProperty -NotePropertyValue severity_label -InputObject $Severity | 
-        Add-Member -PassThru -NotePropertyName NoteProperty -NotePropertyValue message -InputObject $Message ) 
+      $JsonObject = (New-Object -TypeName PSObject |
+        Add-Member -PassThru -NotePropertyName NoteProperty -NotePropertyValue logsource -InputObject $LocalHostname |
+        Add-Member -PassThru -NotePropertyName NoteProperty -NotePropertyValue hostname -InputObject $LocalHostname |
+        Add-Member -PassThru -NotePropertyName NoteProperty -NotePropertyValue scriptname -InputObject $LocalScriptName |
+        Add-Member -PassThru -NotePropertyName NoteProperty -NotePropertyValue logtime -InputObject $Now |
+        Add-Member -PassThru -NotePropertyName NoteProperty -NotePropertyValue severity_label -InputObject $Severity |
+        Add-Member -PassThru -NotePropertyName NoteProperty -NotePropertyValue message -InputObject $Message )
       If ( $psversiontable.psversion.major -ge 3 ) {
         $JsonString = $JsonObject | ConvertTo-Json
         $JsonString = $JsonString -replace "`n",' ' -replace "`r",' '
       }
       Else {
         $JsonString = $JsonObject | ConvertTo-Json2
-      }               
-      $Socket = New-Object -TypeName System.Net.Sockets.TCPClient -ArgumentList ($Ip,$Port) 
-      $Stream = $Socket.GetStream() 
+      }
+      $Socket = New-Object -TypeName System.Net.Sockets.TCPClient -ArgumentList ($Ip,$Port)
+      $Stream = $Socket.GetStream()
       $Writer = New-Object -TypeName System.IO.StreamWriter -ArgumentList ($Stream)
       $Writer.WriteLine($JsonString)
       $Writer.Flush()
@@ -109,16 +109,16 @@ Function Write-Log {
     }
     ElseIf (!(Test-Path -Path $Log)) {
       Try {
-        $Null = New-Item -Path $Log -ItemType file -Force	
-      } 
-      Catch { 
+        $Null = New-Item -Path $Log -ItemType file -Force
+      }
+      Catch {
         $Now = Get-Date -Format 'yyyy-MM-dd HH:mm:ss,fff'
         Write-Host ("{0}: {1}: Error: Write-Log was unable to find or create the path `"{2}`". Please debug.." -f $Now, $LocalScriptName, $Log)
         exit 1
       }
     }
     Try {
-      ('{0}: {1}: {2}: {3}' -f $Now, $LocalScriptName, $Severity, $Message) | Out-File -filepath $Log -Append   
+      ('{0}: {1}: {2}: {3}' -f $Now, $LocalScriptName, $Severity, $Message) | Out-File -filepath $Log -Append
     }
     Catch {
       Write-Host ("{0}: {1}: Error: Something went wrong while writing to file `"{2}`". It might be locked." -f $Now, $LocalScriptName, $Log)
@@ -127,11 +127,11 @@ Function Write-Log {
 }
 
 Function Initialize-Args {
-  Param ( 
+  Param (
     [Parameter(Mandatory=$True,HelpMessage='Argument list')]$Args
   )
   Try {
-    For ( $i = 0; $i -lt $Args.count; $i++ ) { 
+    For ( $i = 0; $i -lt $Args.count; $i++ ) {
       $CurrentArg = $Args[$i].ToString()
       If ($i -lt $Args.Count-1) {
         $Value = $Args[$i+1];
@@ -144,7 +144,7 @@ Function Initialize-Args {
           $Value = $Args[$i+1];
           $Null = Test-Strings -String $Value
         }
-      } 
+      }
       Else {
         $Value = ''
       }
@@ -183,7 +183,7 @@ Function Initialize-Args {
           }
           Else {
             If ($Value -match '^[a-zA-Z0-9\\.]+') {
-              $Struct.ExclFolders = $Value 
+              $Struct.ExclFolders = $Value
             }
             Else {
               Throw ("ExclFolders `"{0}`" does not meet regex requirements." -f $value)
@@ -204,7 +204,7 @@ Function Initialize-Args {
           }
           Else {
             If ($Value -match '^[a-zA-Z0-9\\.]+') {
-              $Struct.InclFolders = $Value 
+              $Struct.InclFolders = $Value
             }
             Else {
               Throw ("InclFolders `"{0}`" does not meet regex requirements." -f $value)
@@ -225,7 +225,7 @@ Function Initialize-Args {
           }
           Else {
             If ($Value -match '^[a-zA-Z0-9.]+') {
-              $Struct.ExclTasks = $Value 
+              $Struct.ExclTasks = $Value
             }
             Else {
               Throw ("ExclTasks `"{0}`" does not meet regex requirements." -f $value)
@@ -246,7 +246,7 @@ Function Initialize-Args {
           }
           Else {
             If ($Value -match '^[a-zA-Z0-9.]+') {
-              $Struct.InclTasks = $Value 
+              $Struct.InclTasks = $Value
             }
             Else {
               Throw ("InclTasks `"{0}`" does not meet regex requirements." -f $value)
@@ -261,7 +261,7 @@ Function Initialize-Args {
             }
           }
           Else {
-            $Struct.ExclAuthors = $Value 
+            $Struct.ExclAuthors = $Value
           }
           $i++
         }
@@ -272,7 +272,7 @@ Function Initialize-Args {
             }
           }
           Else {
-            $Struct.InclAuthors = $Value 
+            $Struct.InclAuthors = $Value
           }
           $i++
         }
@@ -288,7 +288,7 @@ Function Initialize-Args {
         '^(-w|--Warning)$' {
           If (($value -match '^[\d]+$') -and ([int]$value -lt 100)) {
             $Struct.WarningTreshold = $value
-          } 
+          }
           Else {
             Throw ('Warning treshold should be numeric and less than 100. Value given is {0}.' -f $value)
           }
@@ -297,7 +297,7 @@ Function Initialize-Args {
         '^(-c|--Critical)$' {
           If (($value -match '^[\d]+$') -and ([int]$value -lt 100)) {
             $Struct.CriticalTreshold = $value
-          } 
+          }
           Else {
             Throw ('Critical treshold should be numeric and less than 100. Value given is {0}.' -f $value)
           }
@@ -320,7 +320,7 @@ Function Initialize-Args {
         }
       }
     }
-  } 
+  }
   Catch {
     Write-Host ('CRITICAL: Argument: {0} Value: {1} Error: {2}' -f $CurrentArg, $Value, $_)
     Exit 2
@@ -342,7 +342,7 @@ Function Test-Strings {
 Function Get-AllTaskSubFolders {
   If ($Struct.ExclFolders){
     If ( ! ( Compare-Array -Str $Struct.FolderRef.Name -Patterns $Struct.ExclFolders ) ) {
-      $Struct.AllValidFolders+=$Struct.FolderRef	         
+      $Struct.AllValidFolders+=$Struct.FolderRef
     }
   }
   Else {
@@ -369,7 +369,7 @@ Function Find-InclFolders {
   $Struct.AllValidFolders = @()
   ForEach ($folder in $TempValidFolders) {
     If (Compare-Array -Str $Folder.Name -Patterns $Struct.InclFolders){
-      $Struct.AllValidFolders += $Folder	
+      $Struct.AllValidFolders += $Folder
     }
   }
 }
@@ -379,10 +379,10 @@ Function Compare-Array  {
     [Parameter(Mandatory=$True,HelpMessage='String to search')][string]$Str,
     [Parameter(Mandatory=$True,HelpMessage='Array to search')][AllowEmptyCollection()][String[]]$Patterns
   )
-  ForEach ( $Pattern in $Patterns ) { 
+  ForEach ( $Pattern in $Patterns ) {
     If ( $Str -Match $Pattern ) {
       Return $True
-    } 
+    }
   }
   Return $False
 }
@@ -405,19 +405,19 @@ Arguments:
   -w   | --Warning         => Threshold for warning alert. (not yet implemented)
   -c   | --Critical        => Threshold for critical alert. (not yet implemented)
   -h   | --Help            => Print this help output.
-  -LE  | --LastExec        => check if last execution is >warn or >critical in hours                                                                            
+  -LE  | --LastExec        => check if last execution is >warn or >critical in hours
 '@
   Exit $Struct.ExitCode
-} 
-Function Search-Tasks { 
+}
+Function Search-Tasks {
   Try {
-    $schedule = New-Object -ComObject('Schedule.Service') 
-  } 
+    $schedule = New-Object -ComObject('Schedule.Service')
+  }
   Catch {
     Write-Host ('Error: Schedule.Service COM Object not found on {0}, which is required by this script.' -f $Struct.Hostname)
     Exit 2
-  } 
-  $Schedule.connect($Struct.Hostname) 
+  }
+  $Schedule.connect($Struct.Hostname)
   $Struct.FolderRef = $Schedule.getfolder('\')
   Get-AllTaskSubFolders
   If ($Struct.InclFolders){
@@ -427,18 +427,18 @@ Function Search-Tasks {
   ForEach ($Folder in $Struct.AllValidFolders) {
     If (($Tasks = $Folder.GetTasks($Struct.Hidden))) {
       foreach ($Author in $Struct.ExclAuthors) {
-        $Tasks = $Tasks | ? {([xml]($_.xml)).Task.RegistrationInfo.Author -notlike $Author}
+        $Tasks = $Tasks | Where-Object {([xml]($_.xml)).Task.RegistrationInfo.Author -notlike $Author}
       }
       if ($Struct.InclAuthors) {
         $NewTasks = @()
         foreach ($Author in $Struct.InclAuthors) {
-          $newTasks += $Tasks | ? {([xml]($_.xml)).Task.RegistrationInfo.Author -like $Author}
+          $newTasks += $Tasks | Where-Object {([xml]($_.xml)).Task.RegistrationInfo.Author -like $Author}
         }
-        $Tasks = $NewTasks | Select * -Unique
+        $Tasks = $NewTasks | Select-Object * -Unique
       }
       $Tasks | Select-TaskInfo
     }
-  } 
+  }
   $Struct.TasksTotal = $Struct.TasksOk + $Struct.TasksNotOk + $Struct.TasksRunning
   If ( $Struct.TasksNotOk -gt '0' ) {
     $OutputString += ('{0} / {1} tasks failed! ' -f $Struct.TasksNotOk, $Struct.TasksTotal)
@@ -525,11 +525,11 @@ Function Select-TaskInfo {
       'Author' =  ([xml]$InputObject.xml).Task.RegistrationInfo.Author
       'UserId' = ([xml]$InputObject.xml).Task.Principals.Principal.UserID
       'Description' = ([xml]$InputObject.xml).Task.RegistrationInfo.Description
-      'Cmd' = ([xml]$InputObject.xml).Task.Actions.Exec.Command 
+      'Cmd' = ([xml]$InputObject.xml).Task.Actions.Exec.Command
       'Params' = ([xml]$InputObject.xml).Task.Actions.Exec.Arguments
     }
     #setting up things to handle last execution for now checking unit is hour
-    If ($Struct.LastExec -eq $true) {	
+    If ($Struct.LastExec -eq $true) {
       $lastExecWarn = (get-date).addHours(-$Struct.WarningTreshold)
       $lastExecCrit = (get-date).addHours(-$Struct.CriticalTreshold)
     }
